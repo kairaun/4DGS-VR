@@ -77,12 +77,15 @@ def scene_reconstruction(dataset, opt, hyper, pipe, testing_iterations, saving_i
     test_cams = scene.getTestCameras()
     train_cams = scene.getTrainCameras()
 
+    # === 在迴圈開始前，我們先找出時間為 0 的所有基準相機 ===
     if not viewpoint_stack and not opt.dataloader:
         # dnerf's branch
         viewpoint_stack = [i for i in train_cams]
         temp_list = copy.deepcopy(viewpoint_stack)
+        # =================== [新增：找出 t=0 的基準幀] ===================
         min_time = min([c.time for c in temp_list])
         cams_t0 = [c for c in temp_list if c.time == min_time]
+        # ===============================================================
 
     batch_size = opt.batch_size
     print("data loading done")
@@ -145,6 +148,7 @@ def scene_reconstruction(dataset, opt, hyper, pipe, testing_iterations, saving_i
         if iteration % 1000 == 0:
             gaussians.oneupSHdegree()
 
+        # ===========================================================================
         warmup_iters = 3000
         
         if iteration == 1:
@@ -154,6 +158,7 @@ def scene_reconstruction(dataset, opt, hyper, pipe, testing_iterations, saving_i
         elif iteration == warmup_iters:
             print("\n[Stage 2] Training")
             viewpoint_stack = temp_list.copy()
+        # ============================================================================
 
         # Pick a random Camera
         # dynerf's branch
@@ -173,6 +178,7 @@ def scene_reconstruction(dataset, opt, hyper, pipe, testing_iterations, saving_i
 
             while idx < batch_size :    
                 if not viewpoint_stack :
+                    # [配合2Stages] 根據目前在哪個Stage來補充相機
                     if iteration < warmup_iters:
                         viewpoint_stack = cams_t0.copy()
                     else:
@@ -233,14 +239,16 @@ def scene_reconstruction(dataset, opt, hyper, pipe, testing_iterations, saving_i
         #     lpipsloss = lpips_loss(image_tensor,gt_image_tensor,lpips_model)
         #     loss += opt.lambda_lpips * lpipsloss
 
-        lambda_iso = 0.05 #Whole
-        scales = gaussians.get_scaling 
-        max_scales = scales.max(dim=1).values
-        min_scales = scales.min(dim=1).values
-        scale_ratio = max_scales / (min_scales + 1e-7)
-        #iso_loss = torch.mean(torch.relu(scale_ratio - 10.0)) #cut
-        iso_loss = torch.mean(torch.relu(scale_ratio - 3.0)) #whole
-        loss += lambda_iso * iso_loss
+        # =================== Isotropic Regularization ===================
+        #lambda_iso = 0.05 #Whole
+        #scales = gaussians.get_scaling 
+        #max_scales = scales.max(dim=1).values
+        #min_scales = scales.min(dim=1).values
+        #scale_ratio = max_scales / (min_scales + 1e-7)
+        ##iso_loss = torch.mean(torch.relu(scale_ratio - 10.0)) #cut
+        #iso_loss = torch.mean(torch.relu(scale_ratio - 3.0)) #whole
+        #loss += lambda_iso * iso_loss
+        # ================================================================
 
         loss.backward()
         if torch.isnan(loss).any():
@@ -362,6 +370,7 @@ def prepare_output_and_logger(expname):
 
 _lpips_model = None
 def _get_lpips_model():
+    # 延遲建立，避免不需要評估時也佔 GPU；alex 權重首次呼叫會自動下載（需網路）
     global _lpips_model
     if _lpips_model is None:
         _lpips_model = lpips.LPIPS(net='alex').cuda()
@@ -404,6 +413,7 @@ def training_report(tb_writer, iteration, Ll1, loss, l1_loss, elapsed, testing_i
                     # mask=viewpoint.mask
                     
                     psnr_test += psnr(image, gt_image, mask=None).mean().double()
+                    # LPIPS：輸入須為 [0,1] RGB (1,3,H,W)，normalize=True 會自動轉成套件要求的 [-1,1]
                     lpips_test += _get_lpips_model()(image[:3].unsqueeze(0), gt_image[:3].unsqueeze(0), normalize=True).mean().double()
                 psnr_test /= len(config['cameras'])
                 l1_test /= len(config['cameras'])          
