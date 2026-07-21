@@ -1,6 +1,6 @@
-# High-Fidelity 4D Gaussian Splatting for Beating Heart Reconstruction
+# Dynamic Gaussian Splatting for Virtual Reality Beating Heart Reconstruction
 
-This repository contains information and links for the publication High-Fidelity 4D Gaussian Splatting for Beating Heart Reconstruction. See [4DCardiac](https://kairaun.github.io/4DCardiac/) for more!
+This repository contains information and links for the publication Dynamic Gaussian Splatting for Virtual Reality Beating Heart Reconstruction. See [4DCardiac](https://kairaun.github.io/4DCardiac/) for more!
 
 ## Code
 
@@ -18,9 +18,11 @@ The installation mostly follows the original 4DGS installation procedure. Traini
 
 †National Taipei University of Technology
 
+![block](media/teaser.png)
+
 ### Abstract
 
-Traditional 3D mesh and volume rendering techniques often face challenges such as loss of internal structural details and insufficient real-time rendering performance when presenting dynamic organs. This study proposes a dynamic heart virtual reality visualization system based on four-dimensional Gaussian splatting technology. First, an automated medical image processing pipeline is constructed, extracting multi-view image datasets with spatial alignment references through 3D Slicer. Second, to address the geometric tearing issues caused by heart contraction in four-dimensional Gaussian splatting, the time dimension is frozen during the initial training phase to establish a stable static standard space, thereby decoupling the optimization of geometry and deformation; additionally, the aspect ratio of the Gaussian primitives' major and minor axes is constrained to fundamentally suppress the needle-like degeneration of Gaussian points during dynamic twisting. Finally, the optimized dynamic model sequence is imported into the Unity virtual reality environment to achieve real-time interactive multi-view inspection. The results of this study overcome the limitations of existing technologies in dynamic medical image visualization and provide a high-fidelity technical foundation for future precision medical reconstruction.
+Traditional mesh-based and volume rendering techniques often suffer from loss of internal detail and insufficient real-time performance when visualizing dynamic organs such as the beating heart. This study presents a virtual reality (VR) visual ization system for the dynamic heart based on 4D Gaussian Splatting (4DGS). An automated pipeline first extracts spatially aligned multi-view datasets from medical volume data. To overcome the geometric tearing that arises when 4DGS is applied to semi-transparent cardiac data, supervision is restricted to a single cardiac phase in the early training stage to build a stable canonical space, decoupling geometry from deformation, while an isotropic constraint on the Gaussian aspect ratio suppresses needle-like degeneration at its root. The optimized dynamic sequence is then imported into a VR environment for realtime, interactive, multi-view in spection. Compared with the original 4DGS, the proposed method consistently improves PSNR, SSIM, and LPIPS while eliminating the secant artifacts on the dynamic surface, and sustains an average of 88 FPS on a head-mounted display. These results advance dynamic medical visualization and provide a high-fidelity foundation for future precision-medicine reconstruction.
 
 <br>
 <br>
