@@ -1,0 +1,4 @@
+﻿label,gpu,frames,samples,duration_s,avg_fps,low1pct_fps,min_fps,max_fps,vram_total_mb,vram_seq_mb
+Run,"NVIDIA RTX 4000 Ada Generation",44,2662,30,90.53,60.48,37.32,191.02,1534,1188
+Run,"NVIDIA RTX 4000 Ada Generation",44,2686,30,89.66,82.80,52.62,211.82,1334,1029
+Run,"NVIDIA RTX 4000 Ada Generation",44,2686,30,89.58,83.90,77.03,106.27,990,682
