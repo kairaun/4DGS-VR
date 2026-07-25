@@ -23,8 +23,7 @@ public class HeartVRController : MonoBehaviour
     private InputDevice _left, _right;
     private Vector3 _localPivot;
     private bool _pivotReady;
-    private bool _prevMenu;
-    private bool _prevPrimaryL, _prevSecondaryL;
+    private bool _prevMenuL, _prevMenuR;
 
     void Awake()
     {
@@ -45,8 +44,7 @@ public class HeartVRController : MonoBehaviour
             TryAcquireControllers();
             EnsurePivot();
             HandleVRSpin();
-            HandleVRPlayPause();
-            HandleVRLayerToggle();
+            HandleVRLayerSolo();
         }
         catch (System.Exception e) { Debug.LogWarning("[HeartVRController] VR input: " + e.Message); }
         try { HandleKeyboard(); }
@@ -95,28 +93,25 @@ public class HeartVRController : MonoBehaviour
         if (tr > 0.05f) SpinX((invertRightSpin ? -1f : 1f) * tr * spinSpeed * Time.deltaTime);
     }
 
-    void HandleVRPlayPause()
+    void HandleVRLayerSolo()
     {
-        bool menu = false;
-        if (_right.isValid) _right.TryGetFeatureValue(CommonUsages.menuButton, out menu);
-        if (!menu && _left.isValid) _left.TryGetFeatureValue(CommonUsages.menuButton, out menu);
-
-        if (menu && !_prevMenu && _player != null)
-            _player.SetPlaying(!_player.IsPlaying);
-        _prevMenu = menu;
+        if (_player == null) return;
+        bool ml = false, mr = false;
+        if (_left.isValid) _left.TryGetFeatureValue(CommonUsages.menuButton, out ml);
+        if (_right.isValid) _right.TryGetFeatureValue(CommonUsages.menuButton, out mr);
+        if (ml && !_prevMenuL) SoloOrAll(0);
+        if (mr && !_prevMenuR) SoloOrAll(1);
+        _prevMenuL = ml;
+        _prevMenuR = mr;
     }
 
-    void HandleVRLayerToggle()
+    void SoloOrAll(int target)
     {
-        if (_player == null || !_left.isValid) return;
-        bool a = false, b = false;
-        _left.TryGetFeatureValue(CommonUsages.primaryButton, out a);
-        _left.TryGetFeatureValue(CommonUsages.secondaryButton, out b);
-
-        if (a && !_prevPrimaryL) _player.ToggleLayer(0);
-        if (b && !_prevSecondaryL) _player.ToggleLayer(1);
-        _prevPrimaryL = a;
-        _prevSecondaryL = b;
+        bool onlyTarget = true;
+        for (int i = 0; i < _player.LayerCount; i++)
+            if (_player.IsLayerVisible(i) != (i == target)) { onlyTarget = false; break; }
+        for (int i = 0; i < _player.LayerCount; i++)
+            _player.SetLayerVisible(i, onlyTarget ? true : (i == target));
     }
 
     void HandleKeyboard()
@@ -135,7 +130,7 @@ public class HeartVRController : MonoBehaviour
 
         if (_player != null && Input.GetKeyDown(KeyCode.Space))
             _player.SetPlaying(!_player.IsPlaying);
-        if (_player != null && Input.GetKeyDown(KeyCode.Alpha1)) _player.ToggleLayer(0);
-        if (_player != null && Input.GetKeyDown(KeyCode.Alpha2)) _player.ToggleLayer(1);
+        if (_player != null && Input.GetKeyDown(KeyCode.Alpha1)) SoloOrAll(0);
+        if (_player != null && Input.GetKeyDown(KeyCode.Alpha2)) SoloOrAll(1);
     }
 }
