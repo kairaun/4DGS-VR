@@ -135,7 +135,9 @@ public class PlaybackProfiler : MonoBehaviour
     {
         try
         {
-            string path = Path.Combine(Application.persistentDataPath, "vr_perf.csv");
+            string dir = Path.Combine(Application.dataPath, "PerfLogs");
+            Directory.CreateDirectory(dir);
+            string path = Path.Combine(dir, "vr_perf.csv");
             bool header = !File.Exists(path);
             var c = CultureInfo.InvariantCulture;
             using (var w = new StreamWriter(path, true, Encoding.UTF8))
