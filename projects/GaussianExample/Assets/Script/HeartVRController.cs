@@ -40,12 +40,17 @@ public class HeartVRController : MonoBehaviour
 
     void Update()
     {
-        TryAcquireControllers();
-        EnsurePivot();
-        HandleVRSpin();
-        HandleVRPlayPause();
-        HandleVRLayerToggle();
-        HandleKeyboard();
+        try
+        {
+            TryAcquireControllers();
+            EnsurePivot();
+            HandleVRSpin();
+            HandleVRPlayPause();
+            HandleVRLayerToggle();
+        }
+        catch (System.Exception e) { Debug.LogWarning("[HeartVRController] VR input: " + e.Message); }
+        try { HandleKeyboard(); }
+        catch (System.Exception e) { Debug.LogWarning("[HeartVRController] keyboard: " + e.Message); }
     }
 
     void TryAcquireControllers()

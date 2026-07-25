@@ -61,6 +61,7 @@ public class Gaussian4DPlayer : MonoBehaviour
 
     void Start()
     {
+        Application.runInBackground = true;
         if (templateRenderer == null || layers == null || layers.Length == 0)
         {
             Debug.LogError("[Gaussian4DPlayer] templateRenderer or layers not set.");
