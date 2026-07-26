@@ -1,6 +1,6 @@
-# Dynamic Gaussian Splatting for Virtual Reality Beating Heart Reconstruction
+# Dynamic Layered Gaussian Splatting for Virtual Reality Beating-Heart Reconstruction
 
-This repository contains information and links for the publication Dynamic Gaussian Splatting for Virtual Reality Beating Heart Reconstruction. See [4DCardiac](https://kairaun.github.io/4DCardiac/) for more!
+This repository contains information and links for the publication *Dynamic Layered Gaussian Splatting for Virtual Reality Beating-Heart Reconstruction*. See [4DCardiac](https://kairaun.github.io/4DCardiac/) for more!
 
 ## Code
 
@@ -8,21 +8,63 @@ This repository contains information and links for the publication Dynamic Gauss
 - 4DGS Training code, at: [4DGS](https://github.com/kairaun/4DGS-VR/tree/main/4DGaussians)
 - Data Generation code, at: [Data](https://github.com/kairaun/4DGS-VR/blob/main/4dgs_dataset_generate.py)
 
-## Installation & Usage
-
-The installation mostly follows the original 4DGS installation procedure. Training works as normal in 4DGS.
-
 ## Paper
 
 **Authors:** Kai Yin Wu†
 
 †National Taipei University of Technology
 
-![block](media/teaser.png)
+![block](media/new_teaser.png)
 
 ### Abstract
 
-Traditional mesh-based and volume rendering techniques often suffer from loss of internal detail and insufficient real-time performance when visualizing dynamic organs such as the beating heart. This study presents a virtual reality (VR) visual ization system for the dynamic heart based on 4D Gaussian Splatting (4DGS). An automated pipeline first extracts spatially aligned multi-view datasets from medical volume data. To overcome the geometric tearing that arises when 4DGS is applied to semi-transparent cardiac data, supervision is restricted to a single cardiac phase in the early training stage to build a stable canonical space, decoupling geometry from deformation, while an isotropic constraint on the Gaussian aspect ratio suppresses needle-like degeneration at its root. The optimized dynamic sequence is then imported into a VR environment for realtime, interactive, multi-view in spection. Compared with the original 4DGS, the proposed method consistently improves PSNR, SSIM, and LPIPS while eliminating the secant artifacts on the dynamic surface, and sustains an average of 88 FPS on a head-mounted display. These results advance dynamic medical visualization and provide a high-fidelity foundation for future precision-medicine reconstruction.
+Computed tomography (CT) resolves the beating heart as a dense, time-varying volume, yet in the clinic it is still read mostly as stacks of 2D slices, leaving shape and motion to the viewer's mental reconstruction. Immersive virtual reality (VR) is a compelling alternative: stereoscopy and head tracking convey the spatial arrangement of the chambers and the motion of a valve directly, an interactive 3D reading increasingly explored for medical education, training, and surgical planning. Rendering a moving organ this way is difficult: direct volume rendering cannot be baked once the anatomy moves and spikes on close-up views, meshes discard interior structure, and neural fields remain far from real time, which motivates an explicit, rasterizable representation. 4D Gaussian Splatting (4DGS) fits, being real-time and engine-native, but it reconstructs the organ as one inseparable point cloud, whereas anatomy inspection wants to peel a valve away from the surrounding muscle. Static multi-layer Gaussian work supplies that separation for a frozen scene, but it separates layers by density thresholds and relies on layering economies that assume a still anatomy, and cardiac soft tissues are neither density-separable nor still. We present a dynamic, layered Gaussian system for the beating heart. A self-implemented cinematic volumetric path tracer produces layer-separated, spatially aligned multi-view data from segmented dynamic CT; each anatomical layer is reconstructed as an independent 4D Gaussian model on a shared camera frame; and a temporal model-swapping viewer plays the full cardiac cycle in VR with per-layer toggling. Two of our findings are negative and shaped the design: unlike the static case, dynamic layers can neither share a motion field nor be differentially encoded. We also show that for small anatomical structures the standard full-image photometric metrics are inflated by empty background, so we report foreground-masked quality: a caution for how dynamic medical reconstruction is scored.
+
+## Installation
+
+The environment setup follows the original 4D Gaussian Splatting procedure documented in the *4D Gaussian Splatting for Real-Time Dynamic Scene Rendering* section below.
+
+## Layered Heart Pipeline
+
+The commands below reproduce the dynamic, per-layer reconstruction end to end, from a segmented cardiac CT volume to the per-frame Gaussian assets loaded by the Unity VR viewer. Each anatomical layer (here `heart_valve` = myocardium, `valve` = aortic valve) is trained as an **independent** 4D Gaussian model, and all layers share one camera coordinate frame so they composite into a single scene. Run the commands from the `4DGaussians/` directory.
+
+**1. Generate the layered multi-view dataset.** A cinematic volumetric path tracer renders each segmented layer along a shared spherical camera trajectory into a dnerf-format dataset:
+
+```bash
+python cine_render_4dgs.py --layered --views 96
+```
+
+This writes `data/dnerf/heart_cine/{valve,heart_valve}/`, each containing `train/ val/ test/`, `transforms_*.json`, and an initial point cloud. Both layers share the same cameras.
+
+**2. Train each layer independently.**
+
+```bash
+# inner layer (aortic valve)
+python train.py -s data/dnerf/heart_cine/valve \
+  --expname heart_cine/valve --configs arguments/dnerf/heart_cine.py --port 6017
+
+# outer layer (myocardium)
+python train.py -s data/dnerf/heart_cine/heart_valve \
+  --expname heart_cine/heart_valve --configs arguments/dnerf/heart_cine.py --port 6017
+```
+
+**3. Export the per-frame Gaussian sequence and merge the layers.** The deformation field is continuous in time, so the cardiac cycle is sampled at `--n_frames` evenly spaced timesteps (open at the end, for a seamless loop) and each frame is exported as a deformed point cloud:
+
+```bash
+# export each layer to per-frame point clouds
+python export_perframe_3DGS.py --iteration 20000 \
+  --configs arguments/dnerf/heart_cine.py \
+  --model_path output/heart_cine/valve --n_frames 44
+
+python export_perframe_3DGS.py --iteration 20000 \
+  --configs arguments/dnerf/heart_cine.py \
+  --model_path output/heart_cine/heart_valve --n_frames 44
+
+# tag every vertex with its layer and merge into one sequence
+python merge_layers.py --expbase output/heart_cine --layers heart_valve valve
+```
+
+Each model's exported frames land under its `gaussian_pertimestamp/` folder; these `.ply` clouds are the assets imported into the Unity viewer, where individual anatomical layers can be toggled at runtime in VR.
 
 <br>
 <br>
