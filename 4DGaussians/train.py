@@ -435,16 +435,16 @@ if __name__ == "__main__":
     parser.add_argument('--debug_from', type=int, default=-1)
     parser.add_argument('--detect_anomaly', action='store_true', default=False)
     parser.add_argument("--test_iterations", nargs="+", type=int, default=[3000,7000,14000,20000])
-    parser.add_argument("--iso_lambda",   type=float, default=0.0,  help="[廢案]")
-    parser.add_argument("--iso_tau",      type=float, default=3.0,  help="[廢案]")
-    parser.add_argument("--warmup_iters", type=int,   default=0,    help="[廢案]")
+    parser.add_argument("--iso_lambda",   type=float, default=0.0,  help="[X]")
+    parser.add_argument("--iso_tau",      type=float, default=3.0,  help="[X]")
+    parser.add_argument("--warmup_iters", type=int,   default=0,    help="[X]")
     parser.add_argument("--tv_all_stages", action="store_true", default=False)
     parser.add_argument("--load_deformation", type=str, default=None,
                         help="Stage 2")
     parser.add_argument("--freeze_deformation", action="store_true", default=False,
-                        help="[廢棄]")
+                        help="[X]")
     parser.add_argument("--frozen_layers", nargs="+", default=None,
-                        help="分層差異編碼")
+                        help="Layered differential coding")
     parser.add_argument("--save_iterations", nargs="+", type=int, default=[ 14000, 20000, 30_000, 45000, 60000])
     parser.add_argument("--quiet", action="store_true")
     parser.add_argument("--checkpoint_iterations", nargs="+", type=int, default=[])
