@@ -4,7 +4,7 @@ import numpy as np
 LAB       = r"PATH/TO/ROOT"
 CT_DIR    = f"{LAB}/CT ROOT"
 MULTISEG_DIR = f"{LAB}/SEG ROOT"
-ENVMAP    = f"{LAB}/Multi-Layer-Anatomy-GS-Data-Generation/data/table_mountain_2_puresky_1k.hdr"
+ENVMAP    = f"{LAB}/table_mountain_2_puresky_1k.hdr"
 OUT_DIR   = f"{LAB}/OUTPUT/DATA/DIR"
 
 VALVE_COLOR = (0.98, 0.92, 0.55)
