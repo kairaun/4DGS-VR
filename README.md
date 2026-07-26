@@ -1,6 +1,6 @@
-# Dynamic Layered Gaussian Splatting for Virtual Reality Beating-Heart Reconstruction
+# Immersive Visualization of Beating Hearts with 4D Gaussian Splatting
 
-This repository contains information and links for the publication *Dynamic Layered Gaussian Splatting for Virtual Reality Beating-Heart Reconstruction*. See [4DCardiac](https://kairaun.github.io/4DCardiac/) for more!
+This repository contains information and links for the publication *Immersive Visualization of Beating Hearts with 4D Gaussian Splatting*. See [4DCardiac](https://kairaun.github.io/4DCardiac/) for more!
 
 ## Code
 
