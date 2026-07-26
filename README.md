@@ -6,7 +6,6 @@ This repository contains information and links for the publication *Dynamic Laye
 
 - Unity Rendering code, at: [Unity](https://github.com/kairaun/4DGS-VR/tree/main/projects/GaussianExample)
 - 4DGS Training code, at: [4DGS](https://github.com/kairaun/4DGS-VR/tree/main/4DGaussians)
-- Data Generation code, at: [Data](https://github.com/kairaun/4DGS-VR/blob/main/4dgs_dataset_generate.py)
 
 ## Paper
 
