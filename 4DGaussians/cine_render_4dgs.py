@@ -12,6 +12,7 @@ LAYERS = {
     "valve":       dict(labels=[2], colors={2: VALVE_COLOR},
                         smooth=1.5, gamma=1.8, min=0.0),
     "heart_valve": dict(labels=[1, 2], colors={1: None, 2: VALVE_COLOR}),
+    "myocardium":  dict(labels=[1], colors={1: None}),
 }
 COLOR_DILATE = 4
 LAYER_SEG_LABEL = {1: "心臟本體", 2: "主動脈瓣"}
